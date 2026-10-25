@@ -79,6 +79,28 @@ export function ProjectBackRow({ label, onClick }: { label: string; onClick: () 
   )
 }
 
+// Drops the hydrated lanes and returns to the preview window. Not offered under the global
+// "Show all sessions" preference: that one keeps every row open, so collapsing here would do nothing.
+// Its own component so the visibility check doesn't add branches to ProjectOverviewRow, which is
+// already over the code-health complexity target.
+function ProjectShowLessRow({
+  expanded,
+  label,
+  onCollapse,
+  showAllSessions
+}: {
+  expanded: boolean
+  label: string
+  onCollapse: () => void
+  showAllSessions: boolean
+}) {
+  if (!expanded || showAllSessions) {
+    return null
+  }
+
+  return <WorkspaceShowMoreRow label={label} onClick={onCollapse} />
+}
+
 interface ProjectOverviewRowProps {
   project: SidebarProjectTree
   onEnter?: (id: string) => void
@@ -299,11 +321,12 @@ export function ProjectOverviewRow({
           {expanded && page.more > 0 && (
             <WorkspaceShowMoreRow label={s.showMoreIn(page.more, project.label)} onClick={page.showMore} />
           )}
-          {/* Drops the hydrated lanes and returns to the preview window. Not offered under the global
-              "Show all sessions" preference: that one keeps every row open, so collapsing here would do nothing. */}
-          {expanded && !showAllSessions && (
-            <WorkspaceShowMoreRow label={s.projects.showLess} onClick={() => setExpanded(null)} />
-          )}
+          <ProjectShowLessRow
+            expanded={expanded !== null}
+            label={s.projects.showLess}
+            onCollapse={() => setExpanded(null)}
+            showAllSessions={showAllSessions}
+          />
         </SidebarRowNest>
       )}
     </div>
