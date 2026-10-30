@@ -231,6 +231,25 @@ describe('projects RPC profile forwarding', () => {
     setShowAllProfiles(false)
   })
 
+  it('names the project folder on the all-profiles lanes read, since declared ids differ per profile', async () => {
+    const project = { id: 'p_123', label: 'P', path: '/repos/app', repos: [], sessionCount: 0 } as SidebarProjectTree
+    const gateway = { connectionState: 'open', request: vi.fn() }
+    activeGateway.mockReturnValue(gateway as never)
+    gatewayAtom.set(gateway as never)
+    $profiles.set([{ is_default: true, name: 'default' } as never, { is_default: false, name: 'work' } as never])
+    setShowAllProfiles(true)
+    $projectTree.set([project])
+    vi.mocked(hermes.hermesApi).mockResolvedValue({ project })
+
+    await fetchProjectSessions('p_123')
+
+    expect(hermes.hermesApi).toHaveBeenCalledWith(
+      expect.objectContaining({ path: '/api/profiles/projects/sessions?project_id=p_123&path=%2Frepos%2Fapp' })
+    )
+    $projectTree.set([])
+    setShowAllProfiles(false)
+  })
+
   it('uses the active profile when a persisted all-profiles preference is hidden for one profile', async () => {
     const project = { id: 'p_123', label: 'P', path: null, repos: [], sessionCount: 0 } as SidebarProjectTree
 

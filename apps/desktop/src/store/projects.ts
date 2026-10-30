@@ -657,9 +657,17 @@ async function fetchProjectSessionsAcrossProfiles(
   removalSnapshot: SessionTombstoneGenerationSnapshot
 ): Promise<SidebarProjectTree | null> {
   const owner = projectRowOwner()
+  // Declared project ids differ per profile, so the folder is what finds the project in each
+  // profile's read. A folder-less node (Home) resolves by id.
+  const params = new URLSearchParams({ project_id: projectId })
+  const path = $projectTree.get().find(node => node.id === projectId)?.path
+
+  if (path) {
+    params.set('path', path)
+  }
 
   const res = await hermesApi<{ project: SidebarProjectTree | null }>({
-    path: `/api/profiles/projects/sessions?project_id=${encodeURIComponent(projectId)}`,
+    path: `/api/profiles/projects/sessions?${params}`,
     timeoutMs: PROJECT_TREE_REQUEST_TIMEOUT_MS
   })
 
