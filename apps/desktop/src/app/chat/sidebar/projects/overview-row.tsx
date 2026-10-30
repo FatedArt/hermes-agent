@@ -79,10 +79,8 @@ export function ProjectBackRow({ label, onClick }: { label: string; onClick: () 
   )
 }
 
-// Drops the hydrated lanes and returns to the preview window. Not offered under the global
-// "Show all sessions" preference: that one keeps every row open, so collapsing here would do nothing.
-// Its own component so the visibility check doesn't add branches to ProjectOverviewRow, which is
-// already over the code-health complexity target.
+// Drops the hydrated lanes back to the preview window. Hidden under the global "Show all sessions"
+// preference, which keeps every row open anyway.
 function ProjectShowLessRow({
   expanded,
   label,
